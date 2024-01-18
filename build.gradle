@@ -90,6 +90,13 @@ publishing {
     }
 }
 
+task wrapper(type: Wrapper){
+    gradleVersion = '7.4.2'
+}
+task prepareKotlinBuildScriptModel {
+
+}
+
 dependencies {
 
     implementation 'androidx.core:core-ktx:1.3.2'
