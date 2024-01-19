@@ -53,13 +53,12 @@ android {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)        // << --- ADD This
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
-//===============================
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17            // << --- ADD This
+    sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
 
@@ -68,49 +67,23 @@ task sourceJar(type: Jar) {
     classifier "sources"
 }
 
-//afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                groupId = 'com.github.3akat'
-                artifactId = 'com-example-androidtvlibrary'
-                version = '1.0.2'
-                afterEvaluate {
-                    from components.release
-                }
-//                artifact(sourceJar)
-//                artifact("$buildDir/outputs/aar/AndroidTVLibrary-debug.aar")
-
-
-//                from components.release
-//                groupId = 'com.github.3akat'
-//                artifactId = 'com-example-androidtvlibrary'
-//                version = '1.0.2'
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'com.github.3akat'
+            artifactId = 'com-example-androidtvlibrary'
+            version = '1.0.3'
+            afterEvaluate {
+                from components.release
             }
         }
-        repositories {
-            maven {
-                name = 'AndroidTVPausedAdsLibrary'
-                url = "${project.buildDir}/AndroidTVPausedAdsLibrary"
-            }
+    }
+    repositories {
+        maven {
+            name = 'AndroidTVPausedAdsLibrary'
+            url = "${project.buildDir}/AndroidTVPausedAdsLibrary"
         }
-//    }
-//    android.libraryVariants.each { variant ->
-//        // Only consider release
-//        if (variant.buildType.name != "release") {
-//            return
-//        }
-//        publishing.publications.create(variant.name, MavenPublication) {
-//            def flavorName = "-${variant.flavorName}"
-//            if (flavorName == "-androidnative") {
-//                flavorName = "" //emptying the name to make default dependency without dependencies
-//            }
-//            from components.findByName(variant.name)
-//            groupId group
-//            artifactId "android-sdk${flavorName}"
-//            version version
-//        }
-//    }
+    }
 }
 
 publishing {
@@ -118,13 +91,6 @@ publishing {
         mavenLocal()
     }
 }
-//
-//task wrapper(type: Wrapper){
-//    gradleVersion = '7.5'
-//}
-//task prepareKotlinBuildScriptModel {
-//
-//}
 
 dependencies {
 
