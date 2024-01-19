@@ -4,7 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
-import androidx.media3.common.util.Util;
 
 import java.util.Arrays;
 
@@ -63,7 +62,7 @@ public final class ColorInfo implements Parcelable {
         colorSpace = in.readInt();
         colorRange = in.readInt();
         colorTransfer = in.readInt();
-        boolean hasHdrStaticInfo = Util.readBoolean(in);
+        boolean hasHdrStaticInfo = com.example.androidtvlibrary.main.adapter.Util.readBoolean(in);
         hdrStaticInfo = hasHdrStaticInfo ? in.createByteArray() : null;
     }
 

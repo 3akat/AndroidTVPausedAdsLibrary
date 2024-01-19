@@ -33,7 +33,6 @@
             android:id="@+id/exo_shuffle"
             android:layout_width="@dimen/lb_playback_play_icon_size"
             android:layout_height="@dimen/lb_playback_play_icon_size"
-            android:src="@drawable/lb_ic_shuffle"
             android:visibility="invisible"/>
 
         <ImageButton
@@ -45,14 +44,12 @@
         <ImageButton
             android:id="@+id/exo_play"
             android:layout_width="@dimen/lb_playback_play_icon_size"
-            android:layout_height="@dimen/lb_playback_play_icon_size"
-            android:src="@drawable/lb_ic_play" />
+            android:layout_height="@dimen/lb_playback_play_icon_size"/>
 
         <ImageButton
             android:id="@+id/exo_pause"
             android:layout_width="@dimen/lb_playback_play_icon_size"
             android:layout_height="@dimen/lb_playback_play_icon_size"
-            android:src="@drawable/lb_ic_pause"
             android:focusable="true"/>
 
         <ImageButton

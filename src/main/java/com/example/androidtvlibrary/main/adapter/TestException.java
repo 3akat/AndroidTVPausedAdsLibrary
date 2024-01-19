@@ -1,7 +1,6 @@
 package com.example.androidtvlibrary.main.adapter;
 
 import androidx.annotation.IntDef;
-import androidx.media3.common.util.Assertions;
 
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -82,7 +81,7 @@ public final class TestException extends IOException {
      * #TYPE_UNEXPECTED}.
      */
     public RuntimeException getRuntimeExceptionForUnexpected() {
-        Assertions.checkState(type == TYPE_UNEXPECTED);
+        com.example.androidtvlibrary.main.adapter.Assertions.checkState(type == TYPE_UNEXPECTED);
         return (RuntimeException) Assertions.checkNotNull(getCause());
     }
 }

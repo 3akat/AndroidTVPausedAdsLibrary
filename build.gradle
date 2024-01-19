@@ -4,11 +4,15 @@ buildscript {
         google()
         mavenCentral()
         mavenLocal()
+        maven {
+            url "https://maven.google.com"
+        }
+        jcenter()
     }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10"
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
     }
 }
@@ -29,6 +33,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -55,14 +63,26 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+task sourceJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier "sources"
+}
+
 afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
-                from components.release
                 groupId = 'com.github.3akat'
                 artifactId = 'com-example-androidtvlibrary'
                 version = '1.0.2'
+                artifact(sourceJar)
+                artifact("$buildDir/outputs/aar/AndroidTVLibrary-debug.aar")
+
+
+//                from components.release
+//                groupId = 'com.github.3akat'
+//                artifactId = 'com-example-androidtvlibrary'
+//                version = '1.0.2'
             }
         }
     }
@@ -90,12 +110,12 @@ publishing {
     }
 }
 
-task wrapper(type: Wrapper){
-    gradleVersion = '7.4.2'
-}
-task prepareKotlinBuildScriptModel {
-
-}
+//task wrapper(type: Wrapper){
+//    gradleVersion = '7.5'
+//}
+//task prepareKotlinBuildScriptModel {
+//
+//}
 
 dependencies {
 
