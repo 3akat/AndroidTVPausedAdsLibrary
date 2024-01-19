@@ -68,15 +68,18 @@ task sourceJar(type: Jar) {
     classifier "sources"
 }
 
-afterEvaluate {
+//afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
                 groupId = 'com.github.3akat'
                 artifactId = 'com-example-androidtvlibrary'
                 version = '1.0.2'
-                artifact(sourceJar)
-                artifact("$buildDir/outputs/aar/AndroidTVLibrary-debug.aar")
+                afterEvaluate {
+                    from components.release
+                }
+//                artifact(sourceJar)
+//                artifact("$buildDir/outputs/aar/AndroidTVLibrary-debug.aar")
 
 
 //                from components.release
@@ -85,7 +88,13 @@ afterEvaluate {
 //                version = '1.0.2'
             }
         }
-    }
+        repositories {
+            maven {
+                name = 'AndroidTVPausedAdsLibrary'
+                url = "${project.buildDir}/AndroidTVPausedAdsLibrary"
+            }
+        }
+//    }
 //    android.libraryVariants.each { variant ->
 //        // Only consider release
 //        if (variant.buildType.name != "release") {
