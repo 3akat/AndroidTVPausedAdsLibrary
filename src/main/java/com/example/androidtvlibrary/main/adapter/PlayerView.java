@@ -10,6 +10,7 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -31,7 +32,12 @@ import androidx.media3.common.ErrorMessageProvider;
 import androidx.media3.common.text.Cue;
 
 import com.example.androidtvlibrary.R;
+import com.example.androidtvlibrary.main.PauseCallback;
+import com.example.androidtvlibrary.main.ResumeCallback;
+import com.example.androidtvlibrary.main.adapter.Media.ProgressiveMediaSource;
 import com.example.androidtvlibrary.main.adapter.Media.extractor.PictureFrame;
+import com.example.androidtvlibrary.main.adapter.ads.AdsMediaSource;
+import com.example.androidtvlibrary.main.adapter.factory.DefaultDataSourceFactory;
 import com.example.androidtvlibrary.main.adapter.mp3.ApicFrame;
 import com.example.androidtvlibrary.main.adapter.player.AspectRatioFrameLayout;
 import com.example.androidtvlibrary.main.adapter.player.ControlDispatcher;
@@ -42,11 +48,21 @@ import com.example.androidtvlibrary.main.adapter.player.RepeatModeUtil;
 import com.example.androidtvlibrary.main.adapter.player.SingleTapListener;
 import com.example.androidtvlibrary.main.adapter.player.SphericalGLSurfaceView;
 import com.example.androidtvlibrary.main.adapter.player.VideoDecoderGLSurfaceView;
+import com.example.androidtvlibrary.main.adapter.wow.AdaptiveTrackSelection;
+import com.example.androidtvlibrary.main.adapter.wow.DefaultTrackSelector;
+import com.example.androidtvlibrary.main.adapter.wow.MediaSource;
+import com.example.androidtvlibrary.main.adapter.wow.SimpleWowPlayer;
+import com.google.ads.interactivemedia.v3.api.AdEvent;
+import com.google.ads.interactivemedia.v3.api.AdsLoader;
+import com.google.ads.interactivemedia.v3.api.AdsManager;
+import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
+import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -1469,6 +1485,203 @@ public class PlayerView extends FrameLayout implements AdsLoaderTest.AdViewProvi
         public void onVisibilityChange(int visibility) {
             updateContentDescription();
         }
+    }
+
+    //library logic
+
+    public static String SAMPLE_VAST_TAG_URL =
+//            "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_preroll_skippable&sz=640x480&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=";
+//    "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_vertical_ad_samples&sz=360x640&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=";
+//            "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/vmap_ad_samples&sz=640x480&cust_params=sar%3Da0f2&ciu_szs=300x250&ad_rule=1&gdfp_req=1&output=vmap&unviewed_position_start=5&env=vp&impl=s&correlator=";
+//            "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/vmap_ad_samples&sz=640x480&cust_params=sample_ar%3Dpremidpost&ciu_szs=300x250&gdfp_req=1&ad_rule=1&output=vmap&unviewed_position_start=1&env=vp&impl=s&cmsid=496&vid=short_onecue&correlator=";
+            "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_preroll_skippable&sz=640x480&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=";
+
+    public static String SAMPLE_VIDEO_URL = "https://storage.googleapis.com/gvabox/media/samples/stock.mp4";
+
+    private AdsManager adsManager;
+    private AdsLoader basicAdsLoader;
+    private ResumeCallback resumeCallback;
+    private AdsLoader.AdsLoadedListener adsLoadedListener;
+    private AdEvent.AdEventListener adEventListener;
+
+    public void closeAdsManager() {
+        if (player != null) {
+            player.setPlayWhenReady(false);
+        }
+        if (this != null) {
+            this.setVisibility(View.GONE);
+        }
+        if (adsManager != null) {
+            // Calling adsManager.destroy() triggers the function
+            adsManager.destroy();
+            adsManager = null;
+        }
+        if (basicAdsLoader != null && adsLoadedListener != null) {
+            basicAdsLoader.removeAdsLoadedListener(adsLoadedListener);
+        }
+        if (adsManager != null && adsLoadedListener != null) {
+            adsManager.removeAdEventListener(adEventListener);
+        }
+        if (resumeCallback != null) {
+            resumeCallback.onResumeCall();
+        }
+    }
+
+    public void setPlayerData(){
+        TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory();
+        DefaultTrackSelector trackSelector = new DefaultTrackSelector(getContext(), videoTrackSelectionFactory);
+        SimpleWowPlayer simpleWowPlayer = new SimpleWowPlayer.Builder(getContext()).setTrackSelector(trackSelector).build();
+        AdsLoaderTest adsLoader = new ImaAdsLoaderTest(getContext(), Uri.parse(SAMPLE_VAST_TAG_URL));
+        setPlayer(simpleWowPlayer);
+        adsLoader.setPlayer(simpleWowPlayer);
+        DataSource.Factory sourceFactory = new DefaultDataSourceFactory(
+                getContext(),
+                Util.getUserAgent(getContext(), "appname")
+        );
+        MediaSource contentSource;
+
+        ProgressiveMediaSource.Factory contentSourceFactory = new ProgressiveMediaSource.Factory(sourceFactory);
+        contentSource = contentSourceFactory.createMediaSource(Uri.parse(SAMPLE_VIDEO_URL));
+
+        contentSource = new
+                AdsMediaSource(contentSource, sourceFactory, adsLoader, this);
+
+        ((SimpleWowPlayer) simpleWowPlayer).prepare(contentSource);
+        simpleWowPlayer.setPlayWhenReady(true);
+
+        basicAdsLoader = ((ImaAdsLoaderTest) adsLoader).getAdsLoader();
+    }
+
+    public void adAdsLoader(
+            PauseCallback pauseCallback,
+            ResumeCallback resumeCallback,
+            boolean skipped
+    ) {
+        this.resumeCallback = resumeCallback;
+        if (skipped) {
+            this.setOnTouchCallback(() -> closeAdsManager());
+        }
+
+        // Add listeners for when ads are loaded and for errors.
+        // The AdsLoader instance exposes the requestAds method.
+//        basicAdsLoader = ((ImaAdsLoaderTest) adsLoader).getAdsLoader();
+        basicAdsLoader.addAdErrorListener(adErrorEvent -> {
+            /** An event raised when there is an error loading or playing ads.  */
+            Log.i("TVTestLibrary", "Ad Error: " + adErrorEvent.getError().getMessage());
+            resumeCallback.onResumeCall();
+        });
+        adsLoadedListener = adsManagerLoadedEvent ->
+        {
+            // Ads were successfully loaded, so get the AdsManager instance. AdsManager has
+            // events for ad playback and errors.
+            Log.i("TVTestLibrary", "Ads were successfully loaded");
+            adsManager = adsManagerLoadedEvent.getAdsManager();
+
+            // Attach event and error event listeners.
+            adsManager.addAdErrorListener(
+                    adErrorEvent ->
+                    {
+                        /** An event raised when there is an error loading or playing ads.  */
+                        /** An event raised when there is an error loading or playing ads.  */
+                        Log.i("TVTestLibrary", "Ad Error: " + adErrorEvent.getError().getMessage());
+                        String universalAdIds =
+                                Arrays.toString(adsManager.getCurrentAd().getUniversalAdIds());
+                        Log.i(
+                                "TVTestLibrary",
+                                "Discarding the current ad break with universal "
+                                        + "ad Ids: "
+                                        + universalAdIds
+                        );
+                        adsManager.discardAdBreak();
+                    }
+            );
+
+            this.getAdViewGroup().setOnClickListener(view -> {
+                if (skipped) {
+                    closeAdsManager();
+                }
+            });
+            this.setClickable(true);
+            this.setOnClickListener(view -> {
+                Log.e("aaaaaa", "onClick");
+                if (skipped) {
+                    closeAdsManager();
+                }
+            });
+
+            adEventListener = adEvent -> {
+                if (adsManager != null) {
+                    /** Responds to AdEvents.  */
+                    if (adEvent.getType() != AdEvent.AdEventType.AD_PROGRESS) {
+                        Log.i("TVTestLibrary", "Event: " + adEvent.getType());
+                        if (this.getPlayer().getCurrentPosition() > 0 &&
+                                this.getPlayer().getDuration() <= 0) {
+                            closeAdsManager();
+                        }
+                    }
+                    if (adEvent.getType() != AdEvent.AdEventType.STARTED) {
+//                        this.setVisibility(View.VISIBLE);
+                        Log.i("TVTestLibrary", "Event: " + adEvent.getType());
+                    }
+
+                    if (adEvent.getType() == AdEvent.AdEventType.LOADED) {
+                        Log.i("TVTestLibrary", "Event: " + adEvent.getType());
+                        // AdEventType.LOADED is fired when ads are ready to play.
+
+                        // This sample app uses the sample tag
+                        // single_preroll_skippable_ad_tag_url that requires calling
+                        // AdsManager.start() to start ad playback.
+                        // If you use a different ad tag URL that returns a VMAP or
+                        // an ad rules playlist, the adsManager.init() function will
+                        // trigger ad playback automatically and the IMA SDK will
+                        // ignore the adsManager.start().
+                        // It is safe to always call adsManager.start() in the
+                        // LOADED event.
+                        adsManager.start();
+                        this.setVisibility(View.VISIBLE);
+                        player.setPlayWhenReady(true);
+
+                    } else if (adEvent.getType() == AdEvent.AdEventType.CONTENT_PAUSE_REQUESTED) {
+                        Log.i("TVTestLibrary", "Event: " + adEvent.getType());
+                        // AdEventType.CONTENT_PAUSE_REQUESTED is fired when you
+                        // should pause your content and start playing an ad.
+                        this.setVisibility(View.VISIBLE);
+                        pauseCallback.onPauseCall();
+                    } else if (adEvent.getType() == AdEvent.AdEventType.COMPLETED) {
+                        Log.i("TVTestLibrary", "Event: " + adEvent.getType());
+                        // AdEventType.CONTENT_PAUSE_REQUESTED is fired when you
+                        // should pause your content and start playing an ad.
+//                                    player.setPlayWhenReady(false);
+//                                    playerView.setVisibility(View.GONE);
+//                                    resumeCallback.onResumeCall();
+                        closeAdsManager();
+                    } else if (adEvent.getType() == AdEvent.AdEventType.CONTENT_RESUME_REQUESTED) {
+                        // AdEventType.CONTENT_RESUME_REQUESTED is fired when the ad
+                        // you should play your content.
+//                                    player.setPlayWhenReady(false);
+//                                    playerView.setVisibility(View.GONE);
+//                                    resumeCallback.onResumeCall();
+                        closeAdsManager();
+                    } else if (adEvent.getType() == AdEvent.AdEventType.ALL_ADS_COMPLETED) {
+                        closeAdsManager();
+                    } else if (adEvent.getType() == AdEvent.AdEventType.TAPPED
+                            || adEvent.getType() == AdEvent.AdEventType.CLICKED
+                            || adEvent.getType() == AdEvent.AdEventType.PAUSED) {
+//                        player.setPlayWhenReady(!adsPaused);
+//                        adsPaused = !adsPaused;
+                        if (skipped) {
+                            closeAdsManager();
+                        }
+                    } else {
+                    }
+                }
+            };
+
+            adsManager.addAdEventListener(adEventListener);
+            AdsRenderingSettings adsRenderingSettings = ImaSdkFactory.getInstance().createAdsRenderingSettings();
+            adsManager.init(adsRenderingSettings);
+        };
+        basicAdsLoader.addAdsLoadedListener(adsLoadedListener);
     }
 }
 

@@ -58,7 +58,6 @@ public class TVTestLibrary {
     }
 
     public void adAdsLoader(
-            PlayerView playerView,
             Context context,
             PauseCallback pauseCallback,
             ResumeCallback resumeCallback,
