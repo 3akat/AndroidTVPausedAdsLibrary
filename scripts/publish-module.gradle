@@ -1,0 +1,104 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+if (android.productFlavors.size() > 0) {
+    android.libraryVariants.all { variant ->
+        if (variant.name.toLowerCase().contains("debug")) {
+            return
+        }
+
+        def bundleTask = tasks["bundle${variant.name.capitalize()}Aar"]
+
+        artifacts {
+            archives(bundleTask.archivePath) {
+                classifier variant.flavorName
+                builtBy bundleTask
+                name = project.name
+            }
+        }
+    }
+}
+//uploadArchives {
+afterEvaluate {
+    android.libraryVariants.each { variant ->
+        // Only consider release
+        if (variant.buildType.name != "release") {
+            return
+        }
+        publishing.publications.create(variant.name, MavenPublication) {
+            def flavorName = "-${variant.flavorName}"
+            if (flavorName == "-androidnative") {
+                flavorName = "" //emptying the name to make default dependency without dependencies
+            }
+            from components.findByName(variant.name)
+            groupId group
+            artifactId "android-sdk${flavorName}"
+            version version
+
+            artifact("$buildDir/outputs/aar/ziggeo-android-sdk-${variant.name}-v${version}.aar")
+//            artifact androidSourcesJar
+
+                pom.withXml {
+                    def depsNode = asNode().appendNode('dependencies')
+
+                    configurations.implementation.allDependencies.each { dep ->
+                        def depNode = depsNode.appendNode('dependency')
+                        depNode.appendNode('groupId', dep.group)
+                        depNode.appendNode('artifactId', dep.name)
+                        depNode.appendNode('version', dep.version)
+                        //optional add scope
+                        //optional add transitive exclusions
+                    }
+
+                    if (flavorName.contains("blur")){
+                        def depNode = depsNode.appendNode('dependency')
+                        depNode.appendNode('groupId', 'com.google.mediapipe')
+                        depNode.appendNode('artifactId', 'solution-core')
+                        depNode.appendNode('version', 'RELEASE')
+                    }
+                }
+                pom {
+                    packaging 'aar'
+
+                    name = "android-sdk${flavorName}"
+                    description = 'Ziggeo Android SDK'
+                    url = 'https://github.com/ZiggeoJitpackService/Android-SDK'
+                    licenses {
+                        license {
+                            name = 'Stream License'
+                            url = ''
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'alexander.bedulin'
+                            name = 'Alexander Bedulin'
+                            email = 'alexb@ziggeo.com'
+                        }
+                    }
+
+                    // Version control info - if you're using GitHub, follow the
+                    // format as seen here
+                    scm {
+                        connection = 'scm:git://github.com/ZiggeoJitpackService/Android-SDK.git'
+                        developerConnection = 'scm:git://github.com/ZiggeoJitpackService/Android-SDK.git'
+                        url = 'git://github.com/ZiggeoJitpackService/Android-SDK.git'
+                    }
+                }
+            }
+        }
+    }
+
+//    task androidSourcesJar(type: Jar) {
+//        from android.sourceSets.main.java.srcDirs
+//        classifier = 'sources'
+//    }
+
+    signing {
+        useInMemoryPgpKeys(
+                rootProject.ext["signing.keyId"],
+                rootProject.ext["signing.key"],
+                rootProject.ext["signing.password"],
+        )
+        sign publishing.publications
+    }

@@ -25,6 +25,7 @@ apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
 android {
     namespace 'com.example.androidtvlibrary'
     compileSdk 33
+    compileSdkVersion 33
 
     defaultConfig {
         minSdk 21
