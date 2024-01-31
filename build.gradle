@@ -20,6 +20,7 @@ buildscript {
 apply plugin: 'com.android.library'
 apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'maven-publish'
+apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
 
 android {
     namespace 'com.example.androidtvlibrary'
@@ -70,7 +71,7 @@ task sourceJar(type: Jar) {
 publishing {
     publications {
         release(MavenPublication) {
-            groupId = 'com.github.3akat'
+            groupId = 'com.ziggeo'
             artifactId = 'com-example-androidtvlibrary'
             version = '1.0.3.1'
             afterEvaluate {
