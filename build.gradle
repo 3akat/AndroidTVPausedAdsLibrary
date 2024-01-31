@@ -69,24 +69,24 @@ task sourceJar(type: Jar) {
     classifier "sources"
 }
 
-publishing {
-    publications {
-        release(MavenPublication) {
-            groupId = 'com.ziggeo'
-            artifactId = 'com-example-androidtvlibrary'
-            version = '1.0.3.1'
-            afterEvaluate {
-                from components.release
-            }
-        }
-    }
-    repositories {
-        maven {
-            name = 'AndroidTVPausedAdsLibrary'
-            url = "${project.buildDir}/AndroidTVPausedAdsLibrary"
-        }
-    }
-}
+//publishing {
+//    publications {
+//        release(MavenPublication) {
+//            groupId = 'com.ziggeo'
+//            artifactId = 'com-example-androidtvlibrary'
+//            version = '1.0.3.1'
+//            afterEvaluate {
+//                from components.release
+//            }
+//        }
+//    }
+//    repositories {
+//        maven {
+//            name = 'AndroidTVPausedAdsLibrary'
+//            url = "${project.buildDir}/AndroidTVPausedAdsLibrary"
+//        }
+//    }
+//}
 
 publishing {
     repositories {

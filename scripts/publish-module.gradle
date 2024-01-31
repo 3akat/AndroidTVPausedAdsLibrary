@@ -18,51 +18,26 @@ if (android.productFlavors.size() > 0) {
         }
     }
 }
-//uploadArchives {
+
 afterEvaluate {
-    android.libraryVariants.each { variant ->
-        // Only consider release
-        if (variant.buildType.name != "release") {
-            return
-        }
-        publishing.publications.create(variant.name, MavenPublication) {
-            def flavorName = "-${variant.flavorName}"
-            if (flavorName == "-androidnative") {
-                flavorName = "" //emptying the name to make default dependency without dependencies
-            }
-            from components.findByName(variant.name)
-            groupId group
-            artifactId "android-sdk${flavorName}"
-            version version
+    publishing {
+        publications {
+            release(MavenPublication) {
 
-            artifact("$buildDir/outputs/aar/ziggeo-android-sdk-${variant.name}-v${version}.aar")
-//            artifact androidSourcesJar
+                from components.release
 
-                pom.withXml {
-                    def depsNode = asNode().appendNode('dependencies')
+//                artifact androidJavadocJar
+//                artifact javaSourcesJar
 
-                    configurations.implementation.allDependencies.each { dep ->
-                        def depNode = depsNode.appendNode('dependency')
-                        depNode.appendNode('groupId', dep.group)
-                        depNode.appendNode('artifactId', dep.name)
-                        depNode.appendNode('version', dep.version)
-                        //optional add scope
-                        //optional add transitive exclusions
-                    }
-
-                    if (flavorName.contains("blur")){
-                        def depNode = depsNode.appendNode('dependency')
-                        depNode.appendNode('groupId', 'com.google.mediapipe')
-                        depNode.appendNode('artifactId', 'solution-core')
-                        depNode.appendNode('version', 'RELEASE')
-                    }
-                }
+                groupId = 'com.ziggeo'
+                artifactId = 'com-ziggeo-androidtvlibrary'
+                version = '1.0.3.2'
                 pom {
                     packaging 'aar'
 
-                    name = "android-sdk${flavorName}"
-                    description = 'Ziggeo Android SDK'
-                    url = 'https://github.com/ZiggeoJitpackService/Android-SDK'
+                    name = "AndroidTVPausedAdsLibrary"
+                    description = 'AndroidTVPausedAdsLibrary'
+                    url = 'https://github.com/3akat/AndroidTVPausedAdsLibrary'
                     licenses {
                         license {
                             name = 'Stream License'
@@ -80,25 +55,50 @@ afterEvaluate {
                     // Version control info - if you're using GitHub, follow the
                     // format as seen here
                     scm {
-                        connection = 'scm:git://github.com/ZiggeoJitpackService/Android-SDK.git'
-                        developerConnection = 'scm:git://github.com/ZiggeoJitpackService/Android-SDK.git'
-                        url = 'git://github.com/ZiggeoJitpackService/Android-SDK.git'
+                        connection = 'scm:git://github.com/3akat/AndroidTVPausedAdsLibrary.git'
+                        developerConnection = 'scm:git://github.com/3akat/AndroidTVPausedAdsLibrary.git'
+                        url = 'git://github.com/3akat/AndroidTVPausedAdsLibrary.git'
                     }
                 }
             }
         }
-    }
+        repositories {
+            maven {
+                name = "SonatypeSnapshot"
 
-//    task androidSourcesJar(type: Jar) {
-//        from android.sourceSets.main.java.srcDirs
-//        classifier = 'sources'
-//    }
+//                def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+//                def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+//                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                url = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 
-    signing {
-        useInMemoryPgpKeys(
-                rootProject.ext["signing.keyId"],
-                rootProject.ext["signing.key"],
-                rootProject.ext["signing.password"],
-        )
-        sign publishing.publications
+                credentials {
+                    username ossrhUsername
+                    password ossrhPassword
+                }
+            }
+
+            maven {
+                name = "sonatype"
+
+//                def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+//                def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+//                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+
+                credentials {
+                    username ossrhUsername
+                    password ossrhPassword
+                }
+            }
+        }
     }
+}
+
+signing {
+    useInMemoryPgpKeys(
+            rootProject.ext["signing.keyId"],
+            rootProject.ext["signing.key"],
+            rootProject.ext["signing.password"],
+    )
+    sign publishing.publications
+}
