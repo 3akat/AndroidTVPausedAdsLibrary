@@ -64,10 +64,10 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
-task sourceJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier "sources"
-}
+//task sourceJar(type: Jar) {
+//    from android.sourceSets.main.java.srcDirs
+//    classifier "sources"
+//}
 
 //publishing {
 //    publications {
