@@ -28,9 +28,9 @@ afterEvaluate {
 //                artifact androidJavadocJar
 //                artifact javaSourcesJar
 
-                groupId = 'com.ziggeo'
-                artifactId = 'com-ziggeo-androidtvlibrary'
-                version = '1.0.3.2'
+                groupId = group
+                artifactId = 'io-github-3akat-androidtvlibrary'
+                version = version
                 pom {
                     packaging 'aar'
 

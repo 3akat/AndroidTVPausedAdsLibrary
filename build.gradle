@@ -25,14 +25,17 @@ apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'io.github.gradle-nexus.publish-plugin'
 apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
 
+group = 'io.github.3akat'
+version = '1.0.3.3'
+
 nexusPublishing {
     repositories {
         sonatype()
                 {
                     nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
                     snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-                    username = findProperty('OSSRH_USERNAME')
-                    password = findProperty('OSSRH_PASSWORD')
+                    username = "alexander.bedulin"
+                    password = "6386Sonatype&a"
         }
     }
 }
@@ -78,36 +81,6 @@ java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
-
-//task sourceJar(type: Jar) {
-//    from android.sourceSets.main.java.srcDirs
-//    classifier "sources"
-//}
-
-//publishing {
-//    publications {
-//        release(MavenPublication) {
-//            groupId = 'com.ziggeo'
-//            artifactId = 'com-example-androidtvlibrary'
-//            version = '1.0.3.1'
-//            afterEvaluate {
-//                from components.release
-//            }
-//        }
-//    }
-//    repositories {
-//        maven {
-//            name = 'AndroidTVPausedAdsLibrary'
-//            url = "${project.buildDir}/AndroidTVPausedAdsLibrary"
-//        }
-//    }
-//}
-
-//publishing {
-//    repositories {
-//        mavenLocal()
-//    }
-//}
 
 dependencies {
 
