@@ -28,6 +28,12 @@ apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
 nexusPublishing {
     repositories {
         sonatype()
+                {
+                    nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
+                    snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
+                    username = findProperty('OSSRH_USERNAME')
+                    password = findProperty('OSSRH_PASSWORD')
+        }
     }
 }
 
@@ -97,11 +103,11 @@ java {
 //    }
 //}
 
-publishing {
-    repositories {
-        mavenLocal()
-    }
-}
+//publishing {
+//    repositories {
+//        mavenLocal()
+//    }
+//}
 
 dependencies {
 
