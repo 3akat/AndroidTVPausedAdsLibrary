@@ -3,7 +3,6 @@ package com.example.androidtvlibrary.main.adapter.player;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -156,7 +155,7 @@ public class PlayerControlView extends FrameLayout {
             int defStyleAttr,
             @Nullable AttributeSet playbackAttrs) {
         super(context, attrs, defStyleAttr);
-        int controllerLayoutId = R.layout.exo_player_control_view;
+        int controllerLayoutId = R.layout.wow_player_control_view;
         rewindMs = DEFAULT_REWIND_MS;
         fastForwardMs = DEFAULT_FAST_FORWARD_MS;
         showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;

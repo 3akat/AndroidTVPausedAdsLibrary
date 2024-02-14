@@ -197,7 +197,7 @@ public class PlayerView extends FrameLayout implements AdsLoaderTest.AdViewProvi
 
         boolean shutterColorSet = false;
         int shutterColor = 0;
-        int playerLayoutId = R.layout.exo_player_view;
+        int playerLayoutId = R.layout.wow_player_view;
         boolean useArtwork = true;
         int defaultArtworkId = 0;
         boolean useController = true;

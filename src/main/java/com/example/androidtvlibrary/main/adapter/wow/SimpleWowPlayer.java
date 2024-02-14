@@ -1547,8 +1547,7 @@ public class SimpleWowPlayer extends TestPlayerBase
         if (Looper.myLooper() != getApplicationLooper()) {
             Log.w(
                     TAG,
-                    "Player is accessed on the wrong thread. See "
-                            + "https://exoplayer.dev/issues/player-accessed-on-wrong-thread",
+                    "Player is accessed on the wrong thread.",
                     hasNotifiedFullWrongThreadWarning ? null : new IllegalStateException());
             hasNotifiedFullWrongThreadWarning = true;
         }
