@@ -91,14 +91,14 @@ public class DefaultTimeBar extends View implements TimeBar {
     private final Paint adMarkerPaint;
     private final Paint playedAdMarkerPaint;
     private final Paint scrubberPaint;
-    @Nullable private final Drawable scrubberDrawable;
+//    @Nullable private final Drawable scrubberDrawable;
     private final int barHeight;
     private final int touchTargetHeight;
     private final int adMarkerWidth;
     private final int scrubberEnabledSize;
     private final int scrubberDisabledSize;
     private final int scrubberDraggedSize;
-    private final int scrubberPadding;
+//    private final int scrubberPadding;
     private final int fineScrubYThreshold;
     private final StringBuilder formatBuilder;
     private final Formatter formatter;
@@ -176,12 +176,11 @@ public class DefaultTimeBar extends View implements TimeBar {
 //            TypedArray a =
 //                    context.getTheme().obtainStyledAttributes(timebarAttrs, R.styleable.DefaultTimeBar, 0, 0);
 //            try {
-                            scrubberDrawable = context.getDrawable(R.drawable.common_google_signin_btn_icon_dark);
-                if (scrubberDrawable != null) {
-                    setDrawableLayoutDirection(scrubberDrawable);
-                    defaultTouchTargetHeight =
-                            Math.max(scrubberDrawable.getMinimumHeight(), defaultTouchTargetHeight);
-                }
+//                if (scrubberDrawable != null) {
+//                    setDrawableLayoutDirection(scrubberDrawable);
+//                    defaultTouchTargetHeight =
+//                            Math.max(scrubberDrawable.getMinimumHeight(), defaultTouchTargetHeight);
+//                }
                 barHeight = 30;
                 touchTargetHeight = 20;
                 adMarkerWidth = 20;
@@ -240,18 +239,18 @@ public class DefaultTimeBar extends View implements TimeBar {
             unplayedPaint.setColor(DEFAULT_UNPLAYED_COLOR);
             adMarkerPaint.setColor(DEFAULT_AD_MARKER_COLOR);
             playedAdMarkerPaint.setColor(DEFAULT_PLAYED_AD_MARKER_COLOR);
-            scrubberDrawable = null;
+//            scrubberDrawable = null;
         }
         formatBuilder = new StringBuilder();
         formatter = new Formatter(formatBuilder, Locale.getDefault());
         stopScrubbingRunnable = () -> stopScrubbing(/* canceled= */ false);
-        if (scrubberDrawable != null) {
-            scrubberPadding = (scrubberDrawable.getMinimumWidth() + 1) / 2;
-        } else {
-            scrubberPadding =
-                    (Math.max(scrubberDisabledSize, Math.max(scrubberEnabledSize, scrubberDraggedSize)) + 1)
-                            / 2;
-        }
+//        if (scrubberDrawable != null) {
+//            scrubberPadding = (scrubberDrawable.getMinimumWidth() + 1) / 2;
+//        } else {
+//            scrubberPadding =
+//                    (Math.max(scrubberDisabledSize, Math.max(scrubberEnabledSize, scrubberDraggedSize)) + 1)
+//                            / 2;
+//        }
         scrubberScale = 1.0f;
         scrubberScalingAnimator = new ValueAnimator();
         scrubberScalingAnimator.addUpdateListener(
@@ -548,9 +547,9 @@ public class DefaultTimeBar extends View implements TimeBar {
     @Override
     public void jumpDrawablesToCurrentState() {
         super.jumpDrawablesToCurrentState();
-        if (scrubberDrawable != null) {
-            scrubberDrawable.jumpToCurrentState();
-        }
+//        if (scrubberDrawable != null) {
+//            scrubberDrawable.jumpToCurrentState();
+//        }
     }
 
     @Override
@@ -572,8 +571,8 @@ public class DefaultTimeBar extends View implements TimeBar {
         int seekRight = width - getPaddingRight();
         int progressY = barY + (touchTargetHeight - barHeight) / 2;
         seekBounds.set(seekLeft, barY, seekRight, barY + touchTargetHeight);
-        progressBar.set(seekBounds.left + scrubberPadding, progressY,
-                seekBounds.right - scrubberPadding, progressY + barHeight);
+//        progressBar.set(seekBounds.left + scrubberPadding, progressY,
+//                seekBounds.right - scrubberPadding, progressY + barHeight);
         if (Util.SDK_INT >= 29) {
             setSystemGestureExclusionRectsV29(width, height);
         }
@@ -582,9 +581,9 @@ public class DefaultTimeBar extends View implements TimeBar {
 
     @Override
     public void onRtlPropertiesChanged(int layoutDirection) {
-        if (scrubberDrawable != null && setDrawableLayoutDirection(scrubberDrawable, layoutDirection)) {
-            invalidate();
-        }
+//        if (scrubberDrawable != null && setDrawableLayoutDirection(scrubberDrawable, layoutDirection)) {
+//            invalidate();
+//        }
     }
 
     @Override
@@ -780,28 +779,28 @@ public class DefaultTimeBar extends View implements TimeBar {
         }
         int playheadX = Util.constrainValue(scrubberBar.right, scrubberBar.left, progressBar.right);
         int playheadY = scrubberBar.centerY();
-        if (scrubberDrawable == null) {
-            int scrubberSize = (scrubbing || isFocused()) ? scrubberDraggedSize
-                    : (isEnabled() ? scrubberEnabledSize : scrubberDisabledSize);
-            int playheadRadius = (int) ((scrubberSize * scrubberScale) / 2);
-            canvas.drawCircle(playheadX, playheadY, playheadRadius, scrubberPaint);
-        } else {
-            int scrubberDrawableWidth = (int) (scrubberDrawable.getIntrinsicWidth() * scrubberScale);
-            int scrubberDrawableHeight = (int) (scrubberDrawable.getIntrinsicHeight() * scrubberScale);
-            scrubberDrawable.setBounds(
-                    playheadX - scrubberDrawableWidth / 2,
-                    playheadY - scrubberDrawableHeight / 2,
-                    playheadX + scrubberDrawableWidth / 2,
-                    playheadY + scrubberDrawableHeight / 2);
-            scrubberDrawable.draw(canvas);
-        }
+//        if (scrubberDrawable == null) {
+//            int scrubberSize = (scrubbing || isFocused()) ? scrubberDraggedSize
+//                    : (isEnabled() ? scrubberEnabledSize : scrubberDisabledSize);
+//            int playheadRadius = (int) ((scrubberSize * scrubberScale) / 2);
+//            canvas.drawCircle(playheadX, playheadY, playheadRadius, scrubberPaint);
+//        } else {
+//            int scrubberDrawableWidth = (int) (scrubberDrawable.getIntrinsicWidth() * scrubberScale);
+//            int scrubberDrawableHeight = (int) (scrubberDrawable.getIntrinsicHeight() * scrubberScale);
+//            scrubberDrawable.setBounds(
+//                    playheadX - scrubberDrawableWidth / 2,
+//                    playheadY - scrubberDrawableHeight / 2,
+//                    playheadX + scrubberDrawableWidth / 2,
+//                    playheadY + scrubberDrawableHeight / 2);
+//            scrubberDrawable.draw(canvas);
+//        }
     }
 
     private void updateDrawableState() {
-        if (scrubberDrawable != null && scrubberDrawable.isStateful()
-                && scrubberDrawable.setState(getDrawableState())) {
-            invalidate();
-        }
+//        if (scrubberDrawable != null && scrubberDrawable.isStateful()
+//                && scrubberDrawable.setState(getDrawableState())) {
+//            invalidate();
+//        }
     }
 
     @RequiresApi(29)

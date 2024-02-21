@@ -26,7 +26,7 @@ apply plugin: 'io.github.gradle-nexus.publish-plugin'
 apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"
 
 group = 'io.github.3akat'
-version = '1.0.3.4'
+version = '1.0.3.6'
 
 nexusPublishing {
     repositories {

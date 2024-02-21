@@ -1,9 +1,11 @@
 package com.example.androidtvlibrary.main;
 
+import static com.example.androidtvlibrary.main.player_screen.PlayerViewFragment.SCIPPED_ADS;
+
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 
 import com.example.androidtvlibrary.main.adapter.AdsLoaderTest;
@@ -19,6 +21,7 @@ import com.example.androidtvlibrary.main.adapter.wow.AdaptiveTrackSelection;
 import com.example.androidtvlibrary.main.adapter.wow.DefaultTrackSelector;
 import com.example.androidtvlibrary.main.adapter.wow.MediaSource;
 import com.example.androidtvlibrary.main.adapter.wow.SimpleWowPlayer;
+import com.example.androidtvlibrary.main.player_screen.PlayerScreen;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsManager;
@@ -29,6 +32,9 @@ import java.util.Arrays;
 
 public class TVTestLibrary {
 
+    private static final int INTENT_FLAGS = Intent.FLAG_ACTIVITY_NEW_TASK
+            | Intent.FLAG_ACTIVITY_NEW_DOCUMENT
+            | Intent.FLAG_ACTIVITY_NO_HISTORY;
     /**
      * IMA sample tag for a single skippable inline video ad. See more IMA sample tags at
      * https://developers.google.com/interactive-media-ads/docs/sdks/html5/client-side/tags
@@ -55,6 +61,14 @@ public class TVTestLibrary {
 
     public TVTestLibrary getInstance() {
         return new TVTestLibrary();
+    }
+
+    public void startAdsLoader(Context context, boolean skipped) {
+        context.startActivity(new Intent(context, PlayerScreen.class)
+                .setFlags(INTENT_FLAGS)
+                .putExtra(SCIPPED_ADS, skipped)
+        );
+
     }
 
     public void adAdsLoader(

@@ -12,6 +12,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Looper;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -32,8 +33,6 @@ import androidx.media3.common.ErrorMessageProvider;
 import androidx.media3.common.text.Cue;
 
 import com.example.androidtvlibrary.R;
-import com.example.androidtvlibrary.main.PauseCallback;
-import com.example.androidtvlibrary.main.ResumeCallback;
 import com.example.androidtvlibrary.main.adapter.Media.ProgressiveMediaSource;
 import com.example.androidtvlibrary.main.adapter.Media.extractor.PictureFrame;
 import com.example.androidtvlibrary.main.adapter.ads.AdsMediaSource;
@@ -1026,7 +1025,7 @@ public class PlayerView extends FrameLayout implements AdsLoaderTest.AdViewProvi
      * Activity.onResume()} for API versions &lt;= 23.
      */
     public void onResume() {
-        if (surfaceView instanceof SphericalGLSurfaceView) {
+        if (surfaceView != null && surfaceView instanceof SphericalGLSurfaceView) {
             ((SphericalGLSurfaceView) surfaceView).onResume();
         }
     }
@@ -1039,7 +1038,7 @@ public class PlayerView extends FrameLayout implements AdsLoaderTest.AdViewProvi
      * Activity.onPause()} for API versions &lt;= 23.
      */
     public void onPause() {
-        if (surfaceView instanceof SphericalGLSurfaceView) {
+        if (surfaceView != null && surfaceView instanceof SphericalGLSurfaceView) {
             ((SphericalGLSurfaceView) surfaceView).onPause();
         }
     }
@@ -1294,12 +1293,10 @@ public class PlayerView extends FrameLayout implements AdsLoaderTest.AdViewProvi
 
     @TargetApi(23)
     private static void configureEditModeLogoV23(Resources resources, ImageView logo) {
-        logo.setImageDrawable(resources.getDrawable(R.drawable.lb_ic_actions_right_arrow, null));
-        logo.setBackgroundColor(resources.getColor(R.color.common_google_signin_btn_text_dark, null));
+        logo.setBackgroundColor(resources.getColor(R.color.cardview_light_background, null));
     }
 
     private static void configureEditModeLogo(Resources resources, ImageView logo) {
-        logo.setImageDrawable(resources.getDrawable(R.drawable.lb_ic_shuffle));
         logo.setBackgroundColor(resources.getColor(R.color.cardview_dark_background));
     }
 
@@ -1500,9 +1497,10 @@ public class PlayerView extends FrameLayout implements AdsLoaderTest.AdViewProvi
 
     private AdsManager adsManager;
     private AdsLoader basicAdsLoader;
-    private ResumeCallback resumeCallback;
     private AdsLoader.AdsLoadedListener adsLoadedListener;
     private AdEvent.AdEventListener adEventListener;
+    private OnActionListener onActionListener;
+    private OnScipListener onScipListener;
 
     public void closeAdsManager() {
         if (player != null) {
@@ -1522,12 +1520,12 @@ public class PlayerView extends FrameLayout implements AdsLoaderTest.AdViewProvi
         if (adsManager != null && adsLoadedListener != null) {
             adsManager.removeAdEventListener(adEventListener);
         }
-        if (resumeCallback != null) {
-            resumeCallback.onResumeCall();
+        if (onActionListener != null) {
+            onActionListener.onContentResume();
         }
     }
 
-    public void setPlayerData(){
+    public void setPlayerData() {
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory();
         DefaultTrackSelector trackSelector = new DefaultTrackSelector(getContext(), videoTrackSelectionFactory);
         SimpleWowPlayer simpleWowPlayer = new SimpleWowPlayer.Builder(getContext()).setTrackSelector(trackSelector).build();
@@ -1552,14 +1550,24 @@ public class PlayerView extends FrameLayout implements AdsLoaderTest.AdViewProvi
         basicAdsLoader = ((ImaAdsLoaderTest) adsLoader).getAdsLoader();
     }
 
+    public void addOnActionListener(OnActionListener onActionListener) {
+        this.onActionListener = onActionListener;
+    }
+
+    public void addOnSkipListener(OnScipListener onScipListener) {
+        this.onScipListener = onScipListener;
+    }
+
     public void adAdsLoader(
-            PauseCallback pauseCallback,
-            ResumeCallback resumeCallback,
             boolean skipped
     ) {
-        this.resumeCallback = resumeCallback;
         if (skipped) {
-            this.setOnTouchCallback(() -> closeAdsManager());
+            this.setOnTouchCallback(() -> {
+                closeAdsManager();
+                if (onScipListener != null) {
+                    onScipListener.onAdsSkip();
+                }
+            });
         }
 
         // Add listeners for when ads are loaded and for errors.
@@ -1568,7 +1576,10 @@ public class PlayerView extends FrameLayout implements AdsLoaderTest.AdViewProvi
         basicAdsLoader.addAdErrorListener(adErrorEvent -> {
             /** An event raised when there is an error loading or playing ads.  */
             Log.i("TVTestLibrary", "Ad Error: " + adErrorEvent.getError().getMessage());
-            resumeCallback.onResumeCall();
+
+            if (onActionListener != null) {
+                onActionListener.onContentResume();
+            }
         });
         adsLoadedListener = adsManagerLoadedEvent ->
         {
@@ -1599,13 +1610,18 @@ public class PlayerView extends FrameLayout implements AdsLoaderTest.AdViewProvi
             this.getAdViewGroup().setOnClickListener(view -> {
                 if (skipped) {
                     closeAdsManager();
+                    if (onScipListener != null) {
+                        onScipListener.onAdsSkip();
+                    }
                 }
             });
             this.setClickable(true);
             this.setOnClickListener(view -> {
-                Log.e("aaaaaa", "onClick");
                 if (skipped) {
                     closeAdsManager();
+                    if (onScipListener != null) {
+                        onScipListener.onAdsSkip();
+                    }
                 }
             });
 
@@ -1617,10 +1633,12 @@ public class PlayerView extends FrameLayout implements AdsLoaderTest.AdViewProvi
                         if (this.getPlayer().getCurrentPosition() > 0 &&
                                 this.getPlayer().getDuration() <= 0) {
                             closeAdsManager();
+                            if (onScipListener != null) {
+                                onScipListener.onAdsSkip();
+                            }
                         }
                     }
                     if (adEvent.getType() != AdEvent.AdEventType.STARTED) {
-//                        this.setVisibility(View.VISIBLE);
                         Log.i("TVTestLibrary", "Event: " + adEvent.getType());
                     }
 
@@ -1646,31 +1664,44 @@ public class PlayerView extends FrameLayout implements AdsLoaderTest.AdViewProvi
                         // AdEventType.CONTENT_PAUSE_REQUESTED is fired when you
                         // should pause your content and start playing an ad.
                         this.setVisibility(View.VISIBLE);
-                        pauseCallback.onPauseCall();
+                        if (onActionListener != null) {
+                            onActionListener.onContentPause();
+                        }
                     } else if (adEvent.getType() == AdEvent.AdEventType.COMPLETED) {
                         Log.i("TVTestLibrary", "Event: " + adEvent.getType());
                         // AdEventType.CONTENT_PAUSE_REQUESTED is fired when you
                         // should pause your content and start playing an ad.
-//                                    player.setPlayWhenReady(false);
-//                                    playerView.setVisibility(View.GONE);
-//                                    resumeCallback.onResumeCall();
+
                         closeAdsManager();
+                        if (onScipListener != null) {
+                            onScipListener.onAdsSkip();
+                        }
                     } else if (adEvent.getType() == AdEvent.AdEventType.CONTENT_RESUME_REQUESTED) {
                         // AdEventType.CONTENT_RESUME_REQUESTED is fired when the ad
                         // you should play your content.
-//                                    player.setPlayWhenReady(false);
-//                                    playerView.setVisibility(View.GONE);
-//                                    resumeCallback.onResumeCall();
+                        if (onActionListener != null) {
+                            onActionListener.onContentResume();
+                        }
                         closeAdsManager();
+                        if (onScipListener != null) {
+                            onScipListener.onAdsSkip();
+                        }
                     } else if (adEvent.getType() == AdEvent.AdEventType.ALL_ADS_COMPLETED) {
+                        if (onActionListener != null) {
+                            onActionListener.onContentComplete();
+                        }
                         closeAdsManager();
+                        if (onScipListener != null) {
+                            onScipListener.onAdsSkip();
+                        }
                     } else if (adEvent.getType() == AdEvent.AdEventType.TAPPED
                             || adEvent.getType() == AdEvent.AdEventType.CLICKED
                             || adEvent.getType() == AdEvent.AdEventType.PAUSED) {
-//                        player.setPlayWhenReady(!adsPaused);
-//                        adsPaused = !adsPaused;
                         if (skipped) {
                             closeAdsManager();
+                            if (onScipListener != null) {
+                                onScipListener.onAdsSkip();
+                            }
                         }
                     } else {
                     }
@@ -1682,6 +1713,20 @@ public class PlayerView extends FrameLayout implements AdsLoaderTest.AdViewProvi
             adsManager.init(adsRenderingSettings);
         };
         basicAdsLoader.addAdsLoadedListener(adsLoadedListener);
+    }
+
+    public interface OnActionListener extends Parcelable {
+        void onContentPause();
+
+        void onContentResume();
+
+        void onContentComplete();
+
+    }
+
+    public interface OnScipListener extends Parcelable {
+
+        void onAdsSkip();
     }
 }
 

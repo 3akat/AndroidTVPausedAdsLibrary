@@ -25,6 +25,12 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".main.player_screen.PlayerScreen"
+            android:exported="false"
+            android:banner="@drawable/app_icon_your_company">
+
+        </activity>
+
         <!--        <activity-->
         <!--            android:name=".ui.activities.UriParserActivity"-->
         <!--            android:noHistory="true"-->

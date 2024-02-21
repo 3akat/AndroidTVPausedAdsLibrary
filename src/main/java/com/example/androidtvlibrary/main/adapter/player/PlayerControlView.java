@@ -97,14 +97,14 @@ public class PlayerControlView extends FrameLayout {
     private final Runnable updateProgressAction;
     private final Runnable hideAction;
 
-    private final Drawable repeatOffButtonDrawable;
-    private final Drawable repeatOneButtonDrawable;
-    private final Drawable repeatAllButtonDrawable;
+//    private final Drawable repeatOffButtonDrawable;
+//    private final Drawable repeatOneButtonDrawable;
+//    private final Drawable repeatAllButtonDrawable;
     private final String repeatOffButtonContentDescription;
     private final String repeatOneButtonContentDescription;
     private final String repeatAllButtonContentDescription;
-    private final Drawable shuffleOnButtonDrawable;
-    private final Drawable shuffleOffButtonDrawable;
+//    private final Drawable shuffleOnButtonDrawable;
+//    private final Drawable shuffleOffButtonDrawable;
     private final float buttonAlphaEnabled;
     private final float buttonAlphaDisabled;
     private final String shuffleOnContentDescription;
@@ -269,16 +269,6 @@ public class PlayerControlView extends FrameLayout {
         buttonAlphaDisabled =
                 (float) 50 / 100;
 
-//        repeatOffButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_off);
-//        repeatOneButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_one);
-//        repeatAllButtonDrawable = resources.getDrawable(R.drawable.exo_controls_repeat_all);
-//        shuffleOnButtonDrawable = resources.getDrawable(R.drawable.exo_controls_shuffle_on);
-//        shuffleOffButtonDrawable = resources.getDrawable(R.drawable.exo_controls_shuffle_off);
-        repeatOffButtonDrawable = resources.getDrawable(R.drawable.lb_ic_replay);
-        repeatOneButtonDrawable = resources.getDrawable(R.drawable.lb_ic_replay);
-        repeatAllButtonDrawable = resources.getDrawable(R.drawable.lb_ic_replay);
-        shuffleOnButtonDrawable = resources.getDrawable(R.drawable.lb_ic_shuffle);
-        shuffleOffButtonDrawable = resources.getDrawable(R.drawable.lb_ic_shuffle);
         repeatOffButtonContentDescription =
                 "resources.getString(R.string.exo_controls_repeat_off_description)";
         repeatOneButtonContentDescription =
@@ -675,7 +665,7 @@ public class PlayerControlView extends FrameLayout {
         @Nullable TestPlayer player = this.player;
         if (player == null) {
             setButtonEnabled(false, repeatToggleButton);
-            repeatToggleButton.setImageDrawable(repeatOffButtonDrawable);
+//            repeatToggleButton.setImageDrawable(repeatOffButtonDrawable);
             repeatToggleButton.setContentDescription(repeatOffButtonContentDescription);
             return;
         }
@@ -683,15 +673,15 @@ public class PlayerControlView extends FrameLayout {
         setButtonEnabled(true, repeatToggleButton);
         switch (player.getRepeatMode()) {
             case TestPlayer.REPEAT_MODE_OFF:
-                repeatToggleButton.setImageDrawable(repeatOffButtonDrawable);
+//                repeatToggleButton.setImageDrawable(repeatOffButtonDrawable);
                 repeatToggleButton.setContentDescription(repeatOffButtonContentDescription);
                 break;
             case TestPlayer.REPEAT_MODE_ONE:
-                repeatToggleButton.setImageDrawable(repeatOneButtonDrawable);
+//                repeatToggleButton.setImageDrawable(repeatOneButtonDrawable);
                 repeatToggleButton.setContentDescription(repeatOneButtonContentDescription);
                 break;
             case TestPlayer.REPEAT_MODE_ALL:
-                repeatToggleButton.setImageDrawable(repeatAllButtonDrawable);
+//                repeatToggleButton.setImageDrawable(repeatAllButtonDrawable);
                 repeatToggleButton.setContentDescription(repeatAllButtonContentDescription);
                 break;
             default:
@@ -710,12 +700,12 @@ public class PlayerControlView extends FrameLayout {
             shuffleButton.setVisibility(GONE);
         } else if (player == null) {
             setButtonEnabled(false, shuffleButton);
-            shuffleButton.setImageDrawable(shuffleOffButtonDrawable);
+//            shuffleButton.setImageDrawable(shuffleOffButtonDrawable);
             shuffleButton.setContentDescription(shuffleOffContentDescription);
         } else {
             setButtonEnabled(true, shuffleButton);
-            shuffleButton.setImageDrawable(
-                    player.getShuffleModeEnabled() ? shuffleOnButtonDrawable : shuffleOffButtonDrawable);
+//            shuffleButton.setImageDrawable(
+//                    player.getShuffleModeEnabled() ? shuffleOnButtonDrawable : shuffleOffButtonDrawable);
             shuffleButton.setContentDescription(
                     player.getShuffleModeEnabled()
                             ? shuffleOnContentDescription
